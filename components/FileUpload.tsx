@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useEffect } from 'react';
 import { UploadedFile } from '../types';
 import {XCircleIcon, PaperClipIcon, ArrowUpTrayIcon, EyeIcon, ArrowDownTrayIcon} from './Icons';
@@ -21,6 +20,22 @@ const FileUpload: React.FC<FileUploadProps> = ({ initialFiles = [], onFilesChang
     const handleFileSelect = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedRawFiles = Array.from(event.target.files || []);
     if (selectedRawFiles.length === 0) return;
+
+    // 50MB 크기 제한 체크 (50 * 1024 * 1024 bytes)
+    const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+    const oversizedFiles = selectedRawFiles.filter(file => file.size > MAX_FILE_SIZE);
+    
+    if (oversizedFiles.length > 0) {
+      const oversizedFileNames = oversizedFiles.map(file => 
+        `${file.name} (${(file.size / (1024 * 1024)).toFixed(1)}MB)`
+      ).join('\n');
+      
+      alert(`파일 크기 제한 초과!\n\n다음 파일들은 50MB를 초과합니다:\n${oversizedFileNames}\n\n50MB 이상의 파일은 슬랙 또는 공유폴더를 이용하시고\n내용에 폴더 위치를 기록해주세요.`);
+      
+      // 파일 입력 초기화
+      event.target.value = '';
+      return;
+    }
 
     try {
       let newUploadedFiles: UploadedFile[];
@@ -113,7 +128,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ initialFiles = [], onFilesChang
       >
         <ArrowUpTrayIcon className="w-6 h-6 mr-2 text-sky-400" />
         <span className="text-sm text-slate-300">
-          {uploading ? '업로드 중...' : '파일 선택 또는 드래그 앤 드롭 (여러 파일 가능)'}
+          {uploading ? '업로드 중...' : '파일 선택 또는 드래그 앤 드롭 (여러 파일 가능, 최대 50MB)'}
         </span>
         <input
             id="file-upload-input"

@@ -183,7 +183,11 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
     // Firebase Storage에 업로드된 파일인 경우 (downloadURL이 있는 경우)
     if (file.downloadURL) {
       return (
-        <div className="text-sm p-3 bg-slate-700 rounded border border-slate-600">
+        <div 
+          className="text-sm p-3 bg-slate-700 rounded border border-slate-600 cursor-pointer hover:bg-slate-600 transition-colors"
+          onClick={() => handleOpenFile(file)}
+          title="클릭하여 파일 미리보기"
+        >
           <div className="flex items-center justify-between">
             <div className="flex-1 min-w-0">
               <p className="font-semibold text-slate-200 truncate">{file.name}</p>
@@ -196,14 +200,10 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
             </div>
             <div className="flex items-center ml-3 space-x-2">
               <button
-                onClick={() => handleOpenFile(file)}
-                className="p-1.5 text-blue-400 hover:text-blue-300 rounded-full hover:bg-blue-500/20 transition-colors"
-                title="파일 열기"
-              >
-                <EyeIcon className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => handleDownloadFile(file)}
+                onClick={(e) => {
+                  e.stopPropagation(); // 카드 클릭 이벤트 방지
+                  handleDownloadFile(file);
+                }}
                 className="p-1.5 text-green-400 hover:text-green-300 rounded-full hover:bg-green-500/20 transition-colors"
                 title="파일 다운로드"
               >
@@ -222,31 +222,13 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
     
     // downloadURL이 없어도 파일이 업로드되었을 수 있으므로 좀 더 유연하게 처리
     return (
-      <div className="text-sm p-3 bg-slate-700 rounded border border-slate-600">
+      <div className="text-sm p-3 bg-slate-700 rounded border border-slate-600 cursor-not-allowed opacity-60">
         <div className="flex items-center justify-between">
           <div className="flex-1 min-w-0">
             <p className="font-semibold text-slate-200 truncate">{file.name}</p>
             <p className="text-xs text-slate-400">{file.type} - {(file.size / 1024).toFixed(1)} KB</p>
             <p className="text-xs text-orange-400">⚠ Download URL 없음</p>
           </div>
-          {file.downloadURL && (
-            <div className="flex items-center ml-3 space-x-2">
-              <button
-                onClick={() => handleOpenFile(file)}
-                className="p-1.5 text-blue-400 hover:text-blue-300 rounded-full hover:bg-blue-500/20 transition-colors"
-                title="파일 열기"
-              >
-                <EyeIcon className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => handleDownloadFile(file)}
-                className="p-1.5 text-green-400 hover:text-green-300 rounded-full hover:bg-green-500/20 transition-colors"
-                title="파일 다운로드"
-              >
-                <ArrowDownTrayIcon className="w-4 h-4" />
-              </button>
-            </div>
-          )}
         </div>
         {file.dataUrl && file.type.startsWith('image/') && (
           <div className="mt-2">
@@ -278,10 +260,6 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
               <p><strong className="text-slate-100">담당자:</strong> {schedule.assignee || '없음'}</p>
               <p><strong className="text-slate-100">기간:</strong> {formatDateToDisplay(schedule.startDate)} ~ {formatDateToDisplay(schedule.endDate)}</p>
               <p><strong className="text-slate-100">팀:</strong> {schedule.team || '없음'}</p>
-              <div className="flex items-center">
-                <strong className="text-slate-100 mr-2">색상:</strong>
-                <span className="w-6 h-6 rounded-full inline-block" style={{ backgroundColor: schedule.color }}></span>
-              </div>
               <div>
                 <strong className="text-slate-100">첨부파일 ({schedule.files.length}개):</strong>
                 {schedule.files.length > 0 ? (
@@ -346,7 +324,7 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
                   onFilesChange={handleFileChange} 
                   scheduleId={isCreateMode ? `temp-${Date.now()}` : schedule?.id}
                 />
-                <p className="mt-1 text-xs text-slate-500">PDF, Excel, 이미지 등 다양한 파일 형식을 업로드할 수 있습니다.</p>
+                <p className="mt-1 text-xs text-slate-500">PDF, Excel, 이미지 등 다양한 파일 형식을 업로드할 수 있습니다. (최대 50MB, 초과 시 슬랙/공유폴더 이용)</p>
               </div>
             </>
           )}
