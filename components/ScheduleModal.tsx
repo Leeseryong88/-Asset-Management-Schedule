@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { Schedule, UploadedFile, ModalMode } from '../types';
 import { DEFAULT_SCHEDULE_COLOR, PREDEFINED_COLORS, TEAM_OPTIONS } from '../constants';
@@ -136,20 +135,50 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
 
   const handleDownloadFile = async (file: UploadedFile) => {
     try {
-      if (file.downloadURL) {
-        await downloadFile(file.downloadURL, file.name);
-      } else {
-        alert('파일 URL을 찾을 수 없습니다.');
+      console.log('다운로드 요청된 파일:', file);
+      
+      if (!file.downloadURL) {
+        console.error('파일 downloadURL이 없음:', file);
+        alert('파일 다운로드 URL을 찾을 수 없습니다. 파일이 올바르게 업로드되었는지 확인해주세요.');
+        return;
       }
+      
+      if (!file.name) {
+        console.error('파일명이 없음:', file);
+        alert('파일명을 찾을 수 없습니다.');
+        return;
+      }
+      
+      console.log('다운로드 시작:', { url: file.downloadURL, name: file.name });
+      await downloadFile(file.downloadURL, file.name);
+      console.log('다운로드 완료');
+      
     } catch (error) {
-      console.error('파일 다운로드 오류:', error);
-      alert('파일 다운로드 중 오류가 발생했습니다.');
+      console.error('파일 다운로드 오류 상세:', error);
+      console.error('파일 정보:', {
+        id: file.id,
+        name: file.name,
+        downloadURL: file.downloadURL,
+        storagePath: file.storagePath
+      });
+      
+      // 사용자에게 더 구체적인 오류 메시지 제공
+      const errorMessage = error instanceof Error ? error.message : '파일 다운로드 중 오류가 발생했습니다.';
+      alert(`${errorMessage}\n\n개발자 도구(F12)의 Console 탭에서 자세한 오류 정보를 확인할 수 있습니다.`);
     }
   };
 
   const renderFilePreview = (file: UploadedFile) => {
     // 디버깅용 로그
-    console.log('파일 데이터:', file);
+    console.log('파일 데이터:', {
+      id: file.id,
+      name: file.name,
+      type: file.type,
+      size: file.size,
+      downloadURL: file.downloadURL,
+      storagePath: file.storagePath,
+      hasDataUrl: !!file.dataUrl
+    });
     
     // Firebase Storage에 업로드된 파일인 경우 (downloadURL이 있는 경우)
     if (file.downloadURL) {
@@ -159,9 +188,11 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
             <div className="flex-1 min-w-0">
               <p className="font-semibold text-slate-200 truncate">{file.name}</p>
               <p className="text-xs text-slate-400">{file.type} - {(file.size / 1024).toFixed(1)} KB</p>
-              {file.downloadURL && (
-                <p className="text-xs text-green-400">✓ 업로드 완료</p>
-              )}
+              <p className="text-xs text-green-400">✓ 업로드 완료</p>
+              {/* 디버깅용: URL 일부 표시 */}
+              <p className="text-xs text-slate-500 truncate" title={file.downloadURL}>
+                URL: ...{file.downloadURL.slice(-30)}
+              </p>
             </div>
             <div className="flex items-center ml-3 space-x-2">
               <button

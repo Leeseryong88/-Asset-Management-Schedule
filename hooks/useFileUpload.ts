@@ -91,21 +91,38 @@ export const useFileUpload = () => {
 
   const downloadFile = async (downloadURL: string, fileName: string): Promise<void> => {
     try {
-      const response = await fetch(downloadURL);
-      const blob = await response.blob();
+      console.log('파일 다운로드 시작:', { downloadURL, fileName });
       
-      // 브라우저 다운로드 트리거
-      const url = window.URL.createObjectURL(blob);
+      // Firebase Storage URL에서 직접 다운로드 링크 생성
+      // CORS 문제를 피하기 위해 fetch 대신 직접 링크 방식 사용
       const a = document.createElement('a');
-      a.href = url;
+      a.href = downloadURL;
       a.download = fileName;
+      a.target = '_blank'; // 새 탭에서 열기 (다운로드 실패 시)
+      
+      // 임시로 DOM에 추가
       document.body.appendChild(a);
       a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      
+      // 클린업
+      setTimeout(() => {
+        document.body.removeChild(a);
+      }, 100);
+      
+      console.log('파일 다운로드 완료');
     } catch (error) {
-      console.error('파일 다운로드 오류:', error);
-      throw new Error('파일 다운로드 중 오류가 발생했습니다.');
+      console.error('파일 다운로드 오류 상세:', error);
+      console.error('다운로드 URL:', downloadURL);
+      console.error('파일명:', fileName);
+      
+      // 대안: URL을 새 탭에서 열기
+      try {
+        window.open(downloadURL, '_blank');
+        console.log('새 탭에서 파일 열기로 대체');
+      } catch (openError) {
+        console.error('새 탭 열기도 실패:', openError);
+        throw new Error('파일 다운로드 중 오류가 발생했습니다. 파일 URL을 확인해주세요.');
+      }
     }
   };
 
