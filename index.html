@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>신사옥 관리</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'slate-750': '#3D485A', // Example custom color if needed by design
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'], // Example custom font
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    /* General body scrollbar for Firefox if ::-webkit-scrollbar is heavily customized elsewhere */
+    /* For Webkit-based browsers (Chrome, Safari, Edge Chromium) */
+    ::-webkit-scrollbar {
+      width: 8px; 
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #1e293b; /* slate-800 or similar dark color */
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background-color: #475569; /* slate-600 or similar */
+      border-radius: 10px;
+      border: 2px solid #1e293b; 
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background-color: #64748b; /* slate-500 or similar */
+    }
+
+    /* For Firefox */
+    html {
+      scrollbar-width: thin;
+      scrollbar-color: #475569 #1e293b; /* thumb and track color */
+    }
+  </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.1.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
+    "react/": "https://esm.sh/react@^19.1.0/"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="bg-slate-900">
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>

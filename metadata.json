@@ -1,0 +1,5 @@
+{
+  "name": "신사옥 관리",
+  "description": "A comprehensive schedule management application with calendar and card list views, allowing users to create, view, edit, and delete schedules with file attachments and color coding.",
+  "requestFramePermissions": []
+}

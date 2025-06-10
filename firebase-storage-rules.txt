@@ -1,0 +1,40 @@
+// Firebase Storage Security Rules
+// 이 규칙을 Firebase Console의 Storage > Rules 탭에 복사하여 적용하세요
+
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // 일정 관련 파일들
+    match /schedules/{scheduleId}/{fileName} {
+      // 인증된 사용자만 업로드/다운로드/삭제 가능
+      allow read, write, delete: if request.auth != null;
+      
+      // 파일 크기 제한 (50MB)
+      allow write: if request.resource.size < 50 * 1024 * 1024;
+      
+      // 허용되는 파일 타입
+      allow write: if request.resource.contentType.matches(
+        '(image/.*)|(application/pdf)|(text/.*)|(application/msword)|(application/vnd.openxmlformats-officedocument.wordprocessingml.document)|(application/vnd.ms-excel)|(application/vnd.openxmlformats-officedocument.spreadsheetml.sheet)|(application/vnd.ms-powerpoint)|(application/vnd.openxmlformats-officedocument.presentationml.presentation)|(application/zip)|(application/x-zip-compressed)'
+      );
+    }
+    
+    // 기타 모든 경로에 대한 접근 거부
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
+
+// 규칙 설명:
+// 1. 인증된 사용자만 파일 접근 가능
+// 2. 파일 크기 50MB 제한
+// 3. 허용되는 파일 타입만 업로드 가능
+//    - 이미지 파일 (image/*)
+//    - PDF (application/pdf)
+//    - 텍스트 파일 (text/*)
+//    - Word 문서 (.doc, .docx)
+//    - Excel 파일 (.xls, .xlsx)
+//    - PowerPoint 파일 (.ppt, .pptx)
+//    - ZIP 파일
+// 4. schedules/{scheduleId}/{fileName} 경로에만 저장 가능
+// 5. 기타 모든 경로는 접근 거부 
