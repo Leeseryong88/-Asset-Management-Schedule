@@ -271,22 +271,30 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                 );
               })}
 
-              {layouts.map(layout => (
-                <div
-                  key={layout.schedule.id + `_lane${layout.laneIndex}`}
-                  className={`schedule-bar-item absolute p-0.5 text-xs rounded shadow truncate cursor-pointer hover:opacity-80 transition-opacity flex items-center
-                    ${layout.isStart ? 'rounded-l-md' : ''} 
-                    ${layout.isEnd ? 'rounded-r-md' : ''}`}
-                  style={{
-                    backgroundColor: layout.schedule.color,
-                    color: '#FFFFFF', 
-                    top: `${DATE_NUMBER_HEIGHT_APPROX + layout.laneIndex * (CALENDAR_BAR_HEIGHT + CALENDAR_BAR_VERTICAL_GAP)}px`,
-                    left: `${(layout.startCol / 7) * 100}%`,
-                    width: `${((layout.endCol - layout.startCol + 1) / 7) * 100}%`,
-                    height: `${CALENDAR_BAR_HEIGHT}px`,
-                    paddingLeft: layout.isStart ? '6px' : '2px',
-                    paddingRight: layout.isEnd ? '6px' : '2px',
-                  }}
+              {layouts.map(layout => {
+                // 현재 날짜와 비교하여 과거 스케줄인지 확인
+                const scheduleEndDate = createDateFromISO(layout.schedule.endDate);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0); // 시간을 00:00:00으로 설정
+                const isPastSchedule = scheduleEndDate < today;
+                
+                return (
+                  <div
+                    key={layout.schedule.id + `_lane${layout.laneIndex}`}
+                    className={`schedule-bar-item absolute p-0.5 text-xs rounded shadow truncate cursor-pointer hover:opacity-80 transition-opacity flex items-center
+                      ${layout.isStart ? 'rounded-l-md' : ''} 
+                      ${layout.isEnd ? 'rounded-r-md' : ''}`}
+                    style={{
+                      backgroundColor: layout.schedule.color,
+                      color: '#FFFFFF', 
+                      opacity: isPastSchedule ? 0.4 : 1, // 과거 스케줄은 40% 투명도
+                      top: `${DATE_NUMBER_HEIGHT_APPROX + layout.laneIndex * (CALENDAR_BAR_HEIGHT + CALENDAR_BAR_VERTICAL_GAP)}px`,
+                      left: `${(layout.startCol / 7) * 100}%`,
+                      width: `${((layout.endCol - layout.startCol + 1) / 7) * 100}%`,
+                      height: `${CALENDAR_BAR_HEIGHT}px`,
+                      paddingLeft: layout.isStart ? '6px' : '2px',
+                      paddingRight: layout.isEnd ? '6px' : '2px',
+                    }}
                   onClick={(e) => { e.stopPropagation(); onScheduleClick(layout.schedule); }}
                   onMouseEnter={(e) => onScheduleMouseEnter(layout.schedule, e)}
                   onMouseLeave={onScheduleMouseLeave}
@@ -298,7 +306,8 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                   <span className="mr-1 flex-shrink-0 text-xs">{getCategoryDisplay(layout.schedule.category)}</span>
                   <span className="truncate">{layout.schedule.title}</span>
                 </div>
-              ))}
+                );
+              })}
             </div>
           );
         })}

@@ -304,7 +304,7 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
                     ))}
                   </ul>
                 ) : <span className="ml-2 text-slate-400">없음</span>}
-                 <p className="mt-2 text-xs text-slate-500">업로드된 파일은 Firebase Storage에서 안전하게 관리됩니다.</p>
+ 
               </div>
             </div>
           ) : (
