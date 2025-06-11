@@ -1,0 +1,57 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 관리자 이메일 정의
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email == 'admin@gentlemonster.com';
+    }
+    
+    // 인증된 사용자인지 확인
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // 스케줄 컬렉션 규칙
+    match /schedules/{scheduleId} {
+      // 읽기: 모든 인증된 사용자 허용
+      allow read: if isAuthenticated();
+      
+      // 생성: 모든 인증된 사용자 허용 (createdBy 필드가 자신의 이메일과 일치해야 함)
+      allow create: if isAuthenticated() 
+        && request.auth.token.email == request.resource.data.createdBy;
+      
+      // 업데이트: 생성자 또는 관리자만 허용
+      allow update: if isAuthenticated() 
+        && (request.auth.token.email == resource.data.createdBy || isAdmin())
+        && request.auth.token.email == request.resource.data.updatedBy;
+      
+      // 삭제: 생성자 또는 관리자만 허용
+      allow delete: if isAuthenticated() 
+        && (request.auth.token.email == resource.data.createdBy || isAdmin());
+    }
+    
+    // 사용자 프로필 컬렉션 규칙
+    match /users/{userId} {
+      // 읽기: 자신의 정보 또는 관리자만 허용
+      allow read: if isAuthenticated() 
+        && (request.auth.uid == userId || isAdmin());
+      
+      // 생성: 자신의 정보만 생성 가능
+      allow create: if isAuthenticated() 
+        && request.auth.uid == userId
+        && request.auth.token.email == request.resource.data.email;
+      
+      // 업데이트: 자신의 정보 또는 관리자만 수정 가능
+      allow update: if isAuthenticated() 
+        && (request.auth.uid == userId || isAdmin());
+      
+      // 삭제: 관리자만 허용
+      allow delete: if isAdmin();
+    }
+    
+    // 모든 다른 문서에 대한 접근 거부
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+} 
