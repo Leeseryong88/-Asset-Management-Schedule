@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Schedule } from '../types';
 import { getDaysInMonth, getDayOfWeek, formatDateISO, isSameDay, isDateInRange, createDateFromISO } from '../utils/dateUtils';
 import { CALENDAR_BAR_HEIGHT, CALENDAR_BAR_VERTICAL_GAP, MAX_CALENDAR_LANES, DATE_NUMBER_HEIGHT_APPROX, getCategoryDisplay } from '../constants';
@@ -43,6 +43,19 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   const year = currentMonth.getFullYear();
   const month = currentMonth.getMonth();
   const dayButtonRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  
+  // 뷰포트 높이 상태 관리
+  const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
+
+  // 창 크기 변화 감지
+  useEffect(() => {
+    const handleResize = () => {
+      setViewportHeight(window.innerHeight);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
 
   const daysInMonth = getDaysInMonth(year, month);
@@ -186,9 +199,25 @@ const CalendarView: React.FC<CalendarViewProps> = ({
         {weeks.map((weekDays, weekIndex) => {
           const { layouts, moreCounts } = getScheduleLayoutsForWeek(weekDays);
           const minRowHeight = DATE_NUMBER_HEIGHT_APPROX + (MAX_CALENDAR_LANES * (CALENDAR_BAR_HEIGHT + CALENDAR_BAR_VERTICAL_GAP)) + 10 + (moreCounts.some(c => c > 0) ? 20 : 0);
+          
+          // 동적 셀 높이 계산: 기본 높이에서 최대 1.5배까지
+          // 전체 뷰포트에서 헤더(100px), 패딩(50px), 요일 헤더(50px), 여유(100px) 제외
+          const reservedHeight = 300;
+          const availableHeight = Math.max(300, viewportHeight - reservedHeight);
+          const dynamicRowHeight = Math.max(
+            minRowHeight, 
+            Math.min(minRowHeight * 1.5, availableHeight / weeks.length)
+          );
 
           return (
-            <div key={weekIndex} className="grid grid-cols-7 relative border-t border-slate-700 first:border-t-0 h-full" style={{ minHeight: `${minRowHeight}px`}}>
+            <div 
+              key={weekIndex} 
+              className="grid grid-cols-7 relative border-t border-slate-700 first:border-t-0" 
+              style={{ 
+                minHeight: `${minRowHeight}px`,
+                height: `${dynamicRowHeight}px`
+              }}
+            >
               {weekDays.map((date, dayIndex) => {
                 const isCurrentMonthDay = date && date.getMonth() === month;
                 const isToday = date && isSameDay(date, today);
