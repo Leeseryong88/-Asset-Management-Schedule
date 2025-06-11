@@ -56,7 +56,9 @@ export const useFirestoreSchedules = (user: any) => {
           color: data.color,
           team: data.team,
           category: data.category || '공사', // 기본값 설정
-          files: files
+          files: files,
+          createdBy: data.createdBy || '',
+          updatedBy: data.updatedBy || ''
         });
       });
       console.log('불러온 스케줄 데이터:', schedulesData); // 디버깅용 로그

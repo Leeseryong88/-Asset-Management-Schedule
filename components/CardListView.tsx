@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Schedule } from '../types';
 import ScheduleCard from './ScheduleCard';
@@ -6,12 +5,19 @@ import { MagnifyingGlassIcon } from './Icons';
 
 interface CardListViewProps {
   schedules: Schedule[];
+  currentUserEmail?: string | null;
   onScheduleClick: (schedule: Schedule) => void;
   onEditClick: (schedule: Schedule) => void;
   onDeleteClick: (scheduleId: string) => void;
 }
 
-const CardListView: React.FC<CardListViewProps> = ({ schedules, onScheduleClick, onEditClick, onDeleteClick }) => {
+const CardListView: React.FC<CardListViewProps> = ({ 
+  schedules, 
+  currentUserEmail,
+  onScheduleClick, 
+  onEditClick, 
+  onDeleteClick 
+}) => {
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredSchedules = schedules.filter(schedule =>
@@ -40,6 +46,7 @@ const CardListView: React.FC<CardListViewProps> = ({ schedules, onScheduleClick,
             <ScheduleCard
               key={schedule.id}
               schedule={schedule}
+              currentUserEmail={currentUserEmail}
               onViewClick={() => onScheduleClick(schedule)}
               onEditClick={() => onEditClick(schedule)}
               onDeleteClick={() => onDeleteClick(schedule.id)}

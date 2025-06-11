@@ -379,6 +379,7 @@ const App: React.FC = () => {
         ) : (
           <CardListView
             schedules={filteredSchedulesForCalendar}
+            currentUserEmail={user?.email}
             onScheduleClick={(schedule) => openModal(ModalMode.View, schedule)}
             onEditClick={(schedule) => openModal(ModalMode.Edit, schedule)}
             onDeleteClick={handleDeleteSchedule}
@@ -393,6 +394,7 @@ const App: React.FC = () => {
           schedule={selectedSchedule}
           dateForNewSchedule={dateForNewSchedule}
           userProfile={userProfile}
+          currentUserEmail={user?.email}
           onSave={handleSaveSchedule}
           onDelete={handleDeleteSchedule}
           onClose={closeModal}

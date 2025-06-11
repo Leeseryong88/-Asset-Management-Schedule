@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Schedule, UploadedFile, ModalMode } from '../types';
-import { DEFAULT_SCHEDULE_COLOR, PREDEFINED_COLORS, TEAM_OPTIONS, CATEGORY_OPTIONS, DEFAULT_CATEGORY } from '../constants';
+import { DEFAULT_SCHEDULE_COLOR, PREDEFINED_COLORS, TEAM_OPTIONS, CATEGORY_OPTIONS, DEFAULT_CATEGORY, isAdmin } from '../constants';
 import FileUpload from './FileUpload';
 import ColorPicker from './ColorPicker';
 import { getCurrentDateISO, formatDateToDisplay, createDateFromISO } from '../utils/dateUtils';
@@ -15,6 +15,7 @@ interface ScheduleModalProps {
   schedule?: Schedule | null;
   dateForNewSchedule?: NewScheduleDateParam | null; 
   userProfile?: { displayName: string; team: string } | null;
+  currentUserEmail?: string | null;
   onClose: () => void;
   onSave: (schedule: Schedule) => void;
   onDelete: (scheduleId: string) => void;
@@ -27,6 +28,7 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
   schedule,
   dateForNewSchedule,
   userProfile,
+  currentUserEmail,
   onClose,
   onSave,
   onDelete,
@@ -47,6 +49,10 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
   const isViewMode = mode === ModalMode.View;
   const isEditMode = mode === ModalMode.Edit;
   const isCreateMode = mode === ModalMode.Create;
+
+  // 현재 사용자가 작성자이거나 관리자인지 확인
+  // createdBy가 없는 기존 스케줄의 경우 모든 사용자가 수정 가능하도록 임시 처리
+  const canEdit = schedule && (!schedule.createdBy || schedule.createdBy === currentUserEmail || isAdmin(currentUserEmail));
 
   const resetForm = useCallback(() => {
     if ((isEditMode || isViewMode) && schedule) {
@@ -382,8 +388,8 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
           )}
         </div>
 
-        <div className="flex justify-end items-center p-5 border-t border-slate-700 space-x-3">
-          {isViewMode && schedule && (
+                <div className="flex justify-end items-center p-5 border-t border-slate-700 space-x-3">
+          {isViewMode && schedule && canEdit && (
             <>
               <button
                 onClick={() => onSetMode(ModalMode.Edit)}

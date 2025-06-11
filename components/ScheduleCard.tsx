@@ -1,18 +1,28 @@
-
 import React from 'react';
 import { Schedule } from '../types';
 import { formatDateRange } from '../utils/dateUtils';
-import { getCategoryDisplay } from '../constants';
+import { getCategoryDisplay, isAdmin } from '../constants';
 import { CalendarIcon, UserIcon, DocumentTextIcon, TagIcon, PencilIcon, TrashIcon, EyeIcon, UsersIcon } from './Icons'; // Added UsersIcon
 
 interface ScheduleCardProps {
   schedule: Schedule;
+  currentUserEmail?: string | null;
   onViewClick: () => void;
   onEditClick: () => void;
   onDeleteClick: () => void;
 }
 
-const ScheduleCard: React.FC<ScheduleCardProps> = ({ schedule, onViewClick, onEditClick, onDeleteClick }) => {
+const ScheduleCard: React.FC<ScheduleCardProps> = ({ 
+  schedule, 
+  currentUserEmail,
+  onViewClick, 
+  onEditClick, 
+  onDeleteClick 
+}) => {
+  // 현재 사용자가 작성자이거나 관리자인지 확인
+  // createdBy가 없는 기존 스케줄의 경우 모든 사용자가 수정 가능하도록 임시 처리
+  const canEdit = !schedule.createdBy || schedule.createdBy === currentUserEmail || isAdmin(currentUserEmail);
+
   return (
     <div className="bg-slate-800 rounded-xl shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:scale-[1.02]">
       <div className="p-5">
@@ -45,20 +55,24 @@ const ScheduleCard: React.FC<ScheduleCardProps> = ({ schedule, onViewClick, onEd
         >
           <EyeIcon className="w-4 h-4 mr-1" /> 상세
         </button>
-        <button
-          onClick={onEditClick}
-          className="px-3 py-1.5 text-xs font-semibold text-yellow-300 hover:text-yellow-100 hover:bg-yellow-600/50 rounded-md transition-colors flex items-center"
-          title="수정"
-        >
-          <PencilIcon className="w-4 h-4 mr-1" /> 수정
-        </button>
-        <button
-          onClick={onDeleteClick}
-          className="px-3 py-1.5 text-xs font-semibold text-red-400 hover:text-red-200 hover:bg-red-600/50 rounded-md transition-colors flex items-center"
-          title="삭제"
-        >
-          <TrashIcon className="w-4 h-4 mr-1" /> 삭제
-        </button>
+        {canEdit && (
+          <>
+            <button
+              onClick={onEditClick}
+              className="px-3 py-1.5 text-xs font-semibold text-yellow-300 hover:text-yellow-100 hover:bg-yellow-600/50 rounded-md transition-colors flex items-center"
+              title="수정"
+            >
+              <PencilIcon className="w-4 h-4 mr-1" /> 수정
+            </button>
+            <button
+              onClick={onDeleteClick}
+              className="px-3 py-1.5 text-xs font-semibold text-red-400 hover:text-red-200 hover:bg-red-600/50 rounded-md transition-colors flex items-center"
+              title="삭제"
+            >
+              <TrashIcon className="w-4 h-4 mr-1" /> 삭제
+            </button>
+          </>
+        )}
       </div>
     </div>
   );
