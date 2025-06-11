@@ -18,7 +18,8 @@ const CardListView: React.FC<CardListViewProps> = ({ schedules, onScheduleClick,
     schedule.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     schedule.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
     schedule.assignee.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    schedule.team.toLowerCase().includes(searchTerm.toLowerCase()) // Changed from remarks to team
+    schedule.team.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    schedule.category.toLowerCase().includes(searchTerm.toLowerCase()) // 카테고리 검색 추가
   ).sort((a,b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
 
   return (
@@ -26,7 +27,7 @@ const CardListView: React.FC<CardListViewProps> = ({ schedules, onScheduleClick,
       <div className="relative">
         <input
           type="text"
-          placeholder="일정 검색 (제목, 내용, 담당자, 팀)..."
+          placeholder="일정 검색 (제목, 내용, 담당자, 팀, 종류)..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full p-3 pl-10 rounded-lg bg-slate-700 text-white placeholder-slate-400 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 border-transparent shadow-lg"

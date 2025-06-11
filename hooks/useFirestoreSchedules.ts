@@ -55,6 +55,7 @@ export const useFirestoreSchedules = (user: any) => {
           endDate: data.endDate,
           color: data.color,
           team: data.team,
+          category: data.category || '공사', // 기본값 설정
           files: files
         });
       });
@@ -83,6 +84,7 @@ export const useFirestoreSchedules = (user: any) => {
         content: scheduleData.content || '',
         assignee: scheduleData.assignee || '',
         team: scheduleData.team || '',
+        category: scheduleData.category || '공사',
         startDate: scheduleData.startDate,
         endDate: scheduleData.endDate,
         color: scheduleData.color || '#3B82F6',
@@ -126,6 +128,7 @@ export const useFirestoreSchedules = (user: any) => {
       if (scheduleData.content !== undefined) updateData.content = scheduleData.content || '';
       if (scheduleData.assignee !== undefined) updateData.assignee = scheduleData.assignee || '';
       if (scheduleData.team !== undefined) updateData.team = scheduleData.team || '';
+      if (scheduleData.category !== undefined) updateData.category = scheduleData.category || '공사';
       if (scheduleData.startDate !== undefined) updateData.startDate = scheduleData.startDate;
       if (scheduleData.endDate !== undefined) updateData.endDate = scheduleData.endDate;
       if (scheduleData.color !== undefined) updateData.color = scheduleData.color || '#3B82F6';

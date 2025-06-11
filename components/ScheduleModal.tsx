@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Schedule, UploadedFile, ModalMode } from '../types';
-import { DEFAULT_SCHEDULE_COLOR, PREDEFINED_COLORS, TEAM_OPTIONS } from '../constants';
+import { DEFAULT_SCHEDULE_COLOR, PREDEFINED_COLORS, TEAM_OPTIONS, CATEGORY_OPTIONS, DEFAULT_CATEGORY } from '../constants';
 import FileUpload from './FileUpload';
 import ColorPicker from './ColorPicker';
 import { getCurrentDateISO, formatDateToDisplay, createDateFromISO } from '../utils/dateUtils';
@@ -36,6 +36,8 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
   const [content, setContent] = useState('');
   const [assignee, setAssignee] = useState('');
   const [team, setTeam] = useState(TEAM_OPTIONS[0]);
+  const [category, setCategory] = useState(DEFAULT_CATEGORY);
+  const [customCategory, setCustomCategory] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [color, setColor] = useState(DEFAULT_SCHEDULE_COLOR);
@@ -58,6 +60,15 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
         setTeam(TEAM_OPTIONS[0]); 
       }
 
+      // 카테고리 설정
+      if (CATEGORY_OPTIONS.includes(schedule.category)) {
+        setCategory(schedule.category);
+        setCustomCategory('');
+      } else {
+        setCategory('직접입력');
+        setCustomCategory(schedule.category || '');
+      }
+
       setStartDate(schedule.startDate);
       setEndDate(schedule.endDate);
       setColor(schedule.color);
@@ -68,6 +79,8 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
       // 사용자 정보가 있으면 자동으로 입력
       setAssignee(userProfile?.displayName || '');
       setTeam(userProfile?.team && TEAM_OPTIONS.includes(userProfile.team) ? userProfile.team : TEAM_OPTIONS[0]); 
+      setCategory(DEFAULT_CATEGORY);
+      setCustomCategory('');
       if (typeof dateForNewSchedule === 'string') {
         setStartDate(dateForNewSchedule);
         setEndDate(dateForNewSchedule);
@@ -105,12 +118,15 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
         return;
     }
     
+    const finalCategory = category === '직접입력' ? customCategory : category;
+    
     const newScheduleData: Schedule = {
       id: (isEditMode && schedule) ? schedule.id : Date.now().toString(),
       title,
       content,
       assignee,
       team: team, 
+      category: finalCategory,
       startDate,
       endDate,
       color,
@@ -256,6 +272,7 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
         <div className="p-6 space-y-6 overflow-y-auto flex-grow">
           {isViewMode && schedule ? (
             <div className="space-y-4 text-slate-300">
+              <p><strong className="text-slate-100">종류:</strong> {schedule.category || '없음'}</p>
               <p><strong className="text-slate-100">내용:</strong> {schedule.content || '없음'}</p>
               <p><strong className="text-slate-100">담당자:</strong> {schedule.assignee || '없음'}</p>
               <p><strong className="text-slate-100">기간:</strong> {formatDateToDisplay(schedule.startDate)} ~ {formatDateToDisplay(schedule.endDate)}</p>
@@ -277,8 +294,43 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
           ) : (
             <>
               <div>
-                <label htmlFor="title" className="block text-sm font-medium text-slate-300 mb-1">제목 <span className="text-red-400">*</span></label>
-                <input type="text" id="title" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full p-2.5 bg-slate-700 border border-slate-600 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500 text-white" />
+                <label className="block text-sm font-medium text-slate-300 mb-1">
+                  제목 <span className="text-red-400">*</span>
+                </label>
+                <div className="flex gap-2">
+                  <div className="w-32 flex-shrink-0">
+                    <select 
+                      id="category" 
+                      value={category} 
+                      onChange={(e) => setCategory(e.target.value)} 
+                      className="w-full p-2.5 bg-slate-700 border border-slate-600 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500 text-white text-sm"
+                    >
+                      {CATEGORY_OPTIONS.map(option => (
+                        <option key={option} value={option}>{option}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex-1">
+                    <input 
+                      type="text" 
+                      id="title" 
+                      value={title} 
+                      onChange={(e) => setTitle(e.target.value)} 
+                      className="w-full p-2.5 bg-slate-700 border border-slate-600 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500 text-white" 
+                    />
+                  </div>
+                </div>
+                {category === '직접입력' && (
+                  <div className="mt-2">
+                    <input 
+                      type="text" 
+                      placeholder="종류를 직접 입력하세요"
+                      value={customCategory} 
+                      onChange={(e) => setCustomCategory(e.target.value)} 
+                      className="w-32 p-2.5 bg-slate-700 border border-slate-600 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500 text-white text-sm"
+                    />
+                  </div>
+                )}
               </div>
               <div>
                 <label htmlFor="content" className="block text-sm font-medium text-slate-300 mb-1">내용</label>

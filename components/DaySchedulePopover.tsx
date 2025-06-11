@@ -3,6 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import { Schedule } from '../types';
 import { XMarkIcon } from './Icons';
 import { formatDateToDisplay } from '../utils/dateUtils';
+import { getCategoryDisplay } from '../constants';
 
 export interface DayPopoverData {
   dateStr: string;
@@ -93,6 +94,7 @@ const DaySchedulePopover: React.FC<DaySchedulePopoverProps> = ({
                 className="w-3 h-3 rounded-full mr-2 flex-shrink-0"
                 style={{ backgroundColor: schedule.color }}
               ></span>
+              <span className="mr-1 flex-shrink-0 text-xs">{getCategoryDisplay(schedule.category)}</span>
               <span className="text-xs text-slate-100 truncate flex-grow">{schedule.title}</span>
             </button>
           </li>

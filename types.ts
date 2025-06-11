@@ -1,4 +1,3 @@
-
 export interface UploadedFile {
   id: string;
   name: string;
@@ -15,6 +14,7 @@ export interface Schedule {
   content: string;
   assignee: string;
   team: string; // Changed from remarks to team
+  category: string; // 일정 종류 필드 추가
   startDate: string; // YYYY-MM-DD
   endDate: string;   // YYYY-MM-DD
   color: string;

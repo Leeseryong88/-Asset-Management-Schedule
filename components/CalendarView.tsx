@@ -2,7 +2,7 @@
 import React, { useRef } from 'react';
 import { Schedule } from '../types';
 import { getDaysInMonth, getDayOfWeek, formatDateISO, isSameDay, isDateInRange, createDateFromISO } from '../utils/dateUtils';
-import { CALENDAR_BAR_HEIGHT, CALENDAR_BAR_VERTICAL_GAP, MAX_CALENDAR_LANES, DATE_NUMBER_HEIGHT_APPROX } from '../constants';
+import { CALENDAR_BAR_HEIGHT, CALENDAR_BAR_VERTICAL_GAP, MAX_CALENDAR_LANES, DATE_NUMBER_HEIGHT_APPROX, getCategoryDisplay } from '../constants';
 import { EyeIcon, PlusCircleIcon } from './Icons';
 
 type DateSelectionPhase = 'idle' | 'selectingEndDate';
@@ -267,7 +267,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                   role="button"
                   aria-label={`일정 ${layout.schedule.title} 보기`}
                 >
-                  <EyeIcon className="w-3 h-3 inline mr-1 flex-shrink-0" />
+                  <span className="mr-1 flex-shrink-0 text-xs">{getCategoryDisplay(layout.schedule.category)}</span>
                   <span className="truncate">{layout.schedule.title}</span>
                 </div>
               ))}
