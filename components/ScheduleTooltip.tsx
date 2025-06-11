@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { ActiveTooltipData } from '../types';
 import { formatDateRange } from '../utils/dateUtils';
@@ -46,10 +45,10 @@ const ScheduleTooltip: React.FC<ScheduleTooltipProps> = ({ tooltipData }) => {
           </p>
         )}
         {schedule.content && (
-            <p className="flex items-start">
-                <DocumentTextIcon className="w-4 h-4 mr-2 mt-0.5 text-slate-400 flex-shrink-0" />
-                <span className="text-slate-200 break-words">내용: {truncateText(schedule.content, 100)}</span>
-            </p>
+          <div className="flex items-start mb-2">
+            <DocumentTextIcon className="w-4 h-4 mr-2 mt-0.5 text-slate-400 flex-shrink-0" />
+            <span className="text-slate-200 break-words whitespace-pre-line">내용: {truncateText(schedule.content, 100)}</span>
+          </div>
         )}
         {schedule.team && ( // Changed from remarks to team
              <p className="flex items-start">

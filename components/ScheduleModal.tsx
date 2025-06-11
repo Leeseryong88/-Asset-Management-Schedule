@@ -289,7 +289,7 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
           {isViewMode && schedule ? (
             <div className="space-y-4 text-slate-300">
               <p><strong className="text-slate-100">종류:</strong> {schedule.category || '없음'}</p>
-              <p><strong className="text-slate-100">내용:</strong> {schedule.content || '없음'}</p>
+              <p><strong className="text-slate-100">내용:</strong> <span className="whitespace-pre-line">{schedule.content || '없음'}</span></p>
               <p><strong className="text-slate-100">담당자:</strong> {schedule.assignee || '없음'}</p>
               <p><strong className="text-slate-100">기간:</strong> {formatDateToDisplay(schedule.startDate)} ~ {formatDateToDisplay(schedule.endDate)}</p>
               <p><strong className="text-slate-100">팀:</strong> {schedule.team || '없음'}</p>

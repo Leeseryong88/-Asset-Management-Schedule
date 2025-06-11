@@ -38,7 +38,7 @@ const ScheduleCard: React.FC<ScheduleCardProps> = ({
           <p className="flex items-center"><CalendarIcon className="w-4 h-4 mr-2 text-slate-500" /> {formatDateRange(schedule.startDate, schedule.endDate)}</p>
           {schedule.category && <p className="flex items-center truncate" title={schedule.category}><span className="w-4 h-4 mr-2 text-slate-500 flex-shrink-0">🏷️</span> 종류: {schedule.category}</p>}
           {schedule.assignee && <p className="flex items-center"><UserIcon className="w-4 h-4 mr-2 text-slate-500" /> 담당자: {schedule.assignee}</p>}
-          {schedule.content && <p className="flex items-center truncate" title={schedule.content}><DocumentTextIcon className="w-4 h-4 mr-2 text-slate-500 flex-shrink-0" /> 내용: {schedule.content}</p>}
+          {schedule.content && <p className="flex items-start truncate" title={schedule.content}><DocumentTextIcon className="w-4 h-4 mr-2 mt-0.5 text-slate-500 flex-shrink-0" /> <span className="whitespace-pre-line">내용: {schedule.content}</span></p>}
           {schedule.team && <p className="flex items-center truncate" title={schedule.team}><UsersIcon className="w-4 h-4 mr-2 text-slate-500 flex-shrink-0" /> 팀: {schedule.team}</p>}
           {schedule.files.length > 0 && (
             <p className="flex items-center">

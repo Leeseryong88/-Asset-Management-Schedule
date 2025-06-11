@@ -239,7 +239,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ user, onClose }) => {
                           <p className="text-slate-400 text-sm mb-1">담당자: {schedule.assignee}</p>
                           <p className="text-slate-400 text-sm mb-1">팀: {schedule.team}</p>
                           {schedule.content && (
-                            <p className="text-slate-400 text-sm mb-1">내용: {schedule.content}</p>
+                            <p className="text-slate-400 text-sm mb-1 whitespace-pre-line">내용: {schedule.content}</p>
                           )}
                           <div className="flex space-x-4 text-xs text-slate-500">
                             {schedule.createdBy && <span>생성자: {schedule.createdBy}</span>}
