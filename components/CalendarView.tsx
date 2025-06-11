@@ -16,7 +16,6 @@ interface CalendarViewProps {
   onScheduleMouseEnter: (schedule: Schedule, event: React.MouseEvent) => void;
   onScheduleMouseLeave: () => void;
   onScheduleMouseMove: (event: React.MouseEvent) => void;
-  onMonthChange: (newMonth: Date) => void;
 }
 
 interface ScheduleLayout {
@@ -39,8 +38,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
     onShowDayPopover,
     onScheduleMouseEnter,
     onScheduleMouseLeave,
-    onScheduleMouseMove,
-    onMonthChange
+    onScheduleMouseMove
 }) => {
   const year = currentMonth.getFullYear();
   const month = currentMonth.getMonth();
@@ -58,48 +56,6 @@ const CalendarView: React.FC<CalendarViewProps> = ({
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
-  // 달력 컨테이너 ref
-  const calendarRef = useRef<HTMLDivElement>(null);
-
-  // 마우스 휠로 월 변경
-  useEffect(() => {
-    const handleWheel = (event: Event) => {
-      const wheelEvent = event as WheelEvent;
-      
-      // 날짜 선택 모드가 활성화된 경우 휠 이벤트 무시
-      if (dateSelectionPhase !== 'idle') {
-        return;
-      }
-
-      // 모달이나 팝오버가 열려있는 경우 휠 이벤트 무시
-      if (document.querySelector('[role="dialog"]') || document.querySelector('[aria-modal="true"]')) {
-        return;
-      }
-
-      event.preventDefault();
-      
-      const deltaY = wheelEvent.deltaY;
-      const year = currentMonth.getFullYear();
-      const month = currentMonth.getMonth();
-      
-      if (deltaY > 0) {
-        // 아래로 스크롤 - 다음 달
-        onMonthChange(new Date(year, month + 1, 1));
-      } else if (deltaY < 0) {
-        // 위로 스크롤 - 이전 달
-        onMonthChange(new Date(year, month - 1, 1));
-      }
-    };
-
-    const calendarElement = calendarRef.current;
-    if (calendarElement) {
-      calendarElement.addEventListener('wheel', handleWheel, { passive: false });
-      return () => {
-        calendarElement.removeEventListener('wheel', handleWheel);
-      };
-    }
-  }, [currentMonth, onMonthChange, dateSelectionPhase]);
 
 
   const daysInMonth = getDaysInMonth(year, month);
@@ -237,7 +193,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
 
 
   return (
-    <div ref={calendarRef} className="bg-slate-800 p-4 sm:p-6 rounded-lg shadow-2xl h-full flex flex-col">
+    <div className="bg-slate-800 p-4 sm:p-6 rounded-lg shadow-2xl h-full flex flex-col">
       <div className="grid grid-cols-7 gap-px border-b border-slate-700 flex-shrink-0">
         {WEEK_DAYS_KO.map(day => (
           <div key={day} className="py-3 text-center font-semibold text-sm text-sky-400 bg-slate-750 first:rounded-tl-lg last:rounded-tr-lg">
