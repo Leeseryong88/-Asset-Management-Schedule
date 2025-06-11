@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Schedule, UploadedFile, ModalMode } from '../types';
-import { DEFAULT_SCHEDULE_COLOR, PREDEFINED_COLORS, TEAM_OPTIONS, CATEGORY_OPTIONS, DEFAULT_CATEGORY, isAdmin } from '../constants';
+import { DEFAULT_SCHEDULE_COLOR, PREDEFINED_COLORS, TEAM_OPTIONS, CATEGORY_OPTIONS, DEFAULT_CATEGORY, isAdmin, getCategoryColor } from '../constants';
 import FileUpload from './FileUpload';
 import ColorPicker from './ColorPicker';
 import { getCurrentDateISO, formatDateToDisplay, createDateFromISO } from '../utils/dateUtils';
@@ -98,7 +98,8 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
         setStartDate(today);
         setEndDate(today);
       }
-      setColor(DEFAULT_SCHEDULE_COLOR);
+      // 기본 카테고리에 맞는 색상으로 설정
+      setColor(getCategoryColor(DEFAULT_CATEGORY));
       setFiles([]);
     }
   }, [schedule, isEditMode, isViewMode, isCreateMode, dateForNewSchedule, userProfile]);
@@ -111,6 +112,15 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
 
   const handleFileChange = (newFiles: UploadedFile[]) => {
     setFiles(newFiles);
+  };
+
+  // 카테고리 변경 시 자동으로 색상 설정 (새 일정 생성 시에만)
+  const handleCategoryChange = (newCategory: string) => {
+    setCategory(newCategory);
+    if (isCreateMode && newCategory !== '직접입력') {
+      const categoryColor = getCategoryColor(newCategory);
+      setColor(categoryColor);
+    }
   };
 
   const handleSave = () => {
@@ -308,7 +318,7 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({
                     <select 
                       id="category" 
                       value={category} 
-                      onChange={(e) => setCategory(e.target.value)} 
+                      onChange={(e) => handleCategoryChange(e.target.value)} 
                       className="w-full p-2.5 bg-slate-700 border border-slate-600 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500 text-white text-sm"
                     >
                       {CATEGORY_OPTIONS.map(option => (
