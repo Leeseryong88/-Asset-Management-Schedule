@@ -15,6 +15,7 @@ import { useFirestoreSchedules } from './hooks/useFirestoreSchedules';
 import { useUserProfile } from './hooks/useUserProfile';
 import { getCurrentDateISO, getSchedulesForDate, createDateFromISO, formatDateToDisplay } from './utils/dateUtils';
 import { ALL_TEAMS_FILTER_VALUE } from './constants';
+import { Analytics } from '@vercel/analytics/react';
 
 type DateSelectionPhase = 'idle' | 'selectingEndDate';
 type NewScheduleDateParam = string | { startDate: string; endDate: string };
@@ -425,6 +426,8 @@ const App: React.FC = () => {
           onClose={() => setShowAdminPanel(false)}
         />
       )}
+      
+      <Analytics />
     </div>
   );
 };
