@@ -374,6 +374,7 @@ const App: React.FC = () => {
             onScheduleMouseEnter={handleScheduleMouseEnter}
             onScheduleMouseLeave={hideScheduleTooltip}
             onScheduleMouseMove={handleScheduleMouseMove}
+            onMonthChange={setCurrentMonth}
           />
         ) : (
           <CardListView
