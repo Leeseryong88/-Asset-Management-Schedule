@@ -166,17 +166,15 @@ const App: React.FC = () => {
     }
   }, [dateSelectionPhase, pendingStartDate, openModal, cancelDateSelection, closeDayPopover, hideScheduleTooltip]);
 
-  const showDayPopoverHandler = useCallback((dateStr: string, targetRect: DOMRect) => {
+  const showDayPopoverHandler = useCallback((dateStr: string, targetRect: DOMRect, hiddenSchedules: Schedule[]) => {
     hideScheduleTooltip(); 
-    const dateObjForPopover = createDateFromISO(dateStr);
-    const allSchedulesForDay = getSchedulesForDate(schedules, dateObjForPopover); 
     
-    if (allSchedulesForDay.length === 0) {
+    if (hiddenSchedules.length === 0) {
       return;
     }
 
     const popoverWidth = 280; 
-    const popoverHeightEstimate = Math.min(300, allSchedulesForDay.length * 36 + 48); 
+    const popoverHeightEstimate = Math.min(300, hiddenSchedules.length * 36 + 48); 
     
     let top = targetRect.bottom + window.scrollY + 5;
     let left = targetRect.left + window.scrollX + (targetRect.width / 2) - (popoverWidth / 2) ;
@@ -198,7 +196,7 @@ const App: React.FC = () => {
 
     setDayPopover({
         dateStr,
-        schedules: allSchedulesForDay, 
+        schedules: hiddenSchedules, 
         position: { top, left, width: popoverWidth },
         triggerRect: targetRect
     });

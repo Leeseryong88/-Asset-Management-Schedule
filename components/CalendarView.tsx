@@ -12,7 +12,7 @@ interface CalendarViewProps {
   onScheduleClick: (schedule: Schedule) => void;
   onDateClick: (date: string) => void; 
   dateSelectionPhase: DateSelectionPhase;
-  onShowDayPopover: (dateStr: string, triggerRect: DOMRect) => void; 
+  onShowDayPopover: (dateStr: string, triggerRect: DOMRect, hiddenSchedules: Schedule[]) => void; 
   onScheduleMouseEnter: (schedule: Schedule, event: React.MouseEvent) => void;
   onScheduleMouseLeave: () => void;
   onScheduleMouseMove: (event: React.MouseEvent) => void;
@@ -104,7 +104,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   
   const today = new Date();
 
-  const getScheduleLayoutsForWeek = (weekDays: (Date | null)[]): { layouts: ScheduleLayout[], moreCounts: number[] } => {
+  const getScheduleLayoutsForWeek = (weekDays: (Date | null)[]): { layouts: ScheduleLayout[], moreCounts: number[], hiddenSchedulesByDay: Schedule[][] } => {
     const weekStart = weekDays[0] ? new Date(weekDays[0]) : new Date(weekDays.find(d => d !== null) || currentMonth);
     if(weekDays[0]) weekStart.setHours(0,0,0,0);
     
@@ -128,6 +128,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
     const layouts: ScheduleLayout[] = [];
     const lanes: boolean[][] = Array(MAX_CALENDAR_LANES).fill(null).map(() => Array(7).fill(false));
     const moreCounts: number[] = Array(7).fill(0);
+    const hiddenSchedulesByDay: Schedule[][] = Array(7).fill(null).map(() => []);
 
     weekSchedules.forEach(schedule => {
       const scheduleActualStart = createDateFromISO(schedule.startDate);
@@ -179,10 +180,15 @@ const CalendarView: React.FC<CalendarViewProps> = ({
       } else {
         for (let c = startCol; c <= endCol; c++) {
           moreCounts[c]++;
+          // 스케줄이 해당 날짜에서 시작하거나 해당 날짜에 포함되는 경우에만 추가
+          // 중복 방지를 위해 스케줄 ID로 체크
+          if (!hiddenSchedulesByDay[c].some(s => s.id === schedule.id)) {
+            hiddenSchedulesByDay[c].push(schedule);
+          }
         }
       }
     });
-    return { layouts, moreCounts };
+    return { layouts, moreCounts, hiddenSchedulesByDay };
   };
 
 
@@ -197,7 +203,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
       </div>
       <div className={`grid gap-px border-l border-r border-b border-slate-700 rounded-b-lg overflow-hidden flex-1 ${weeks.length === 5 ? 'grid-rows-5' : 'grid-rows-6'}`}>
         {weeks.map((weekDays, weekIndex) => {
-          const { layouts, moreCounts } = getScheduleLayoutsForWeek(weekDays);
+          const { layouts, moreCounts, hiddenSchedulesByDay } = getScheduleLayoutsForWeek(weekDays);
           const minRowHeight = DATE_NUMBER_HEIGHT_APPROX + (MAX_CALENDAR_LANES * (CALENDAR_BAR_HEIGHT + CALENDAR_BAR_VERTICAL_GAP)) + 10 + (moreCounts.some(c => c > 0) ? 20 : 0);
           
           // 동적 셀 높이 계산: 기본 높이에서 최대 1.5배까지
@@ -228,7 +234,8 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                     event.stopPropagation(); 
                     if (date) { // date is a Date object
                         const targetRect = event.currentTarget.getBoundingClientRect();
-                        onShowDayPopover(formatDateISO(date), targetRect); // Pass the 'YYYY-MM-DD' string
+                        const hiddenSchedulesForDay = hiddenSchedulesByDay[dayIndex] || [];
+                        onShowDayPopover(formatDateISO(date), targetRect, hiddenSchedulesForDay); // Pass the 'YYYY-MM-DD' string and hidden schedules
                     }
                 };
 
