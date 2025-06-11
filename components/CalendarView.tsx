@@ -1,4 +1,3 @@
-
 import React, { useRef } from 'react';
 import { Schedule } from '../types';
 import { getDaysInMonth, getDayOfWeek, formatDateISO, isSameDay, isDateInRange, createDateFromISO } from '../utils/dateUtils';
@@ -175,21 +174,21 @@ const CalendarView: React.FC<CalendarViewProps> = ({
 
 
   return (
-    <div className="bg-slate-800 p-4 sm:p-6 rounded-lg shadow-2xl">
-      <div className="grid grid-cols-7 gap-px border-b border-slate-700">
+    <div className="bg-slate-800 p-4 sm:p-6 rounded-lg shadow-2xl h-full flex flex-col">
+      <div className="grid grid-cols-7 gap-px border-b border-slate-700 flex-shrink-0">
         {WEEK_DAYS_KO.map(day => (
           <div key={day} className="py-3 text-center font-semibold text-sm text-sky-400 bg-slate-750 first:rounded-tl-lg last:rounded-tr-lg">
             {day}
           </div>
         ))}
       </div>
-      <div className={`grid gap-px border-l border-r border-b border-slate-700 rounded-b-lg overflow-hidden ${weeks.length === 5 ? 'grid-rows-5' : 'grid-rows-6'}`}>
+      <div className={`grid gap-px border-l border-r border-b border-slate-700 rounded-b-lg overflow-hidden flex-1 ${weeks.length === 5 ? 'grid-rows-5' : 'grid-rows-6'}`}>
         {weeks.map((weekDays, weekIndex) => {
           const { layouts, moreCounts } = getScheduleLayoutsForWeek(weekDays);
           const minRowHeight = DATE_NUMBER_HEIGHT_APPROX + (MAX_CALENDAR_LANES * (CALENDAR_BAR_HEIGHT + CALENDAR_BAR_VERTICAL_GAP)) + 10 + (moreCounts.some(c => c > 0) ? 20 : 0);
 
           return (
-            <div key={weekIndex} className="grid grid-cols-7 relative border-t border-slate-700 first:border-t-0" style={{ minHeight: `${minRowHeight}px`}}>
+            <div key={weekIndex} className="grid grid-cols-7 relative border-t border-slate-700 first:border-t-0 h-full" style={{ minHeight: `${minRowHeight}px`}}>
               {weekDays.map((date, dayIndex) => {
                 const isCurrentMonthDay = date && date.getMonth() === month;
                 const isToday = date && isSameDay(date, today);
@@ -207,7 +206,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                 return (
                   <div
                     key={dayIndex}
-                    className={`p-1.5 relative flex flex-col border-r border-slate-700 last:border-r-0 
+                    className={`p-1.5 relative flex flex-col h-full border-r border-slate-700 last:border-r-0 
                                 ${isCurrentMonthDay ? `bg-slate-800/80 ${dateSelectionPhase !== 'idle' ? 'cursor-copy' : 'hover:bg-slate-700/70'}` : 'bg-slate-800/50 text-slate-600'} 
                                 transition-colors group`}
                     onClick={(e) => {
