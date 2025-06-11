@@ -35,25 +35,16 @@ const ColorPicker: React.FC<ColorPickerProps> = ({ selectedColor, onSelectColor,
   };
 
   return (
-    <div className="space-y-3">
-      {/* 일반 색상들 */}
-      {uncategorizedColors.length > 0 && (
-        <div className="flex flex-wrap gap-3">
-          {uncategorizedColors.map(renderColorButton)}
-        </div>
-      )}
+    <div className="flex justify-between items-start gap-3">
+      {/* 일반 색상들 - 왼쪽 */}
+      <div className="flex flex-wrap gap-3">
+        {uncategorizedColors.map(renderColorButton)}
+      </div>
       
-      {/* 카테고리별 지정 색상들 */}
-      {categorizedColors.length > 0 && (
-        <div className="border-t border-slate-600 pt-3">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-slate-400">종류별 지정 색상</span>
-          </div>
-          <div className="flex flex-wrap gap-3 justify-end">
-            {categorizedColors.map(renderColorButton)}
-          </div>
-        </div>
-      )}
+      {/* 카테고리별 지정 색상들 - 오른쪽 */}
+      <div className="flex flex-wrap gap-3">
+        {categorizedColors.map(renderColorButton)}
+      </div>
     </div>
   );
 };
