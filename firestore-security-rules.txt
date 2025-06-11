@@ -14,16 +14,14 @@ service cloud.firestore {
     // 스케줄 컬렉션 규칙
     match /schedules/{scheduleId} {
       // 읽기: 모든 인증된 사용자 허용
-      allow read: if isAuthenticated();
+      allow read, list: if isAuthenticated();
       
-      // 생성: 모든 인증된 사용자 허용 (createdBy 필드가 자신의 이메일과 일치해야 함)
-      allow create: if isAuthenticated() 
-        && request.auth.token.email == request.resource.data.createdBy;
+      // 생성: 모든 인증된 사용자 허용
+      allow create: if isAuthenticated();
       
       // 업데이트: 생성자 또는 관리자만 허용
       allow update: if isAuthenticated() 
-        && (request.auth.token.email == resource.data.createdBy || isAdmin())
-        && request.auth.token.email == request.resource.data.updatedBy;
+        && (request.auth.token.email == resource.data.createdBy || isAdmin());
       
       // 삭제: 생성자 또는 관리자만 허용
       allow delete: if isAuthenticated() 
@@ -36,10 +34,12 @@ service cloud.firestore {
       allow read: if isAuthenticated() 
         && (request.auth.uid == userId || isAdmin());
       
+      // 리스트 조회: 관리자만 허용
+      allow list: if isAdmin();
+      
       // 생성: 자신의 정보만 생성 가능
       allow create: if isAuthenticated() 
-        && request.auth.uid == userId
-        && request.auth.token.email == request.resource.data.email;
+        && request.auth.uid == userId;
       
       // 업데이트: 자신의 정보 또는 관리자만 수정 가능
       allow update: if isAuthenticated() 
