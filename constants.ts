@@ -43,7 +43,7 @@ export const getColorCategory = (color: string): string | undefined => {
 
 export const CALENDAR_BAR_HEIGHT = 20; // px
 export const CALENDAR_BAR_VERTICAL_GAP = 2; // px
-export const MAX_CALENDAR_LANES = 3; // Max number of stacked bars before showing "+N more"
+export const MAX_CALENDAR_LANES = 5; // Max number of stacked bars before showing "+N more"
 export const DATE_NUMBER_HEIGHT_APPROX = 24; // Approximate height for the date number area in a cell
 
 export const TEAM_OPTIONS: string[] = ['자산운영', '안전보건', '푸드컬쳐'];
