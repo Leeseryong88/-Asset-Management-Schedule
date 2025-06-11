@@ -43,3 +43,11 @@ export const getCategoryDisplay = (category: string): string => {
   const emoji = CATEGORY_EMOJI_MAP[category] || '📝';
   return `${emoji}[${category}]`;
 };
+
+// 관리자 이메일
+export const ADMIN_EMAIL = 'admin@gentlemonster.com';
+
+// 관리자 권한 체크 함수
+export const isAdmin = (userEmail: string | null | undefined): boolean => {
+  return userEmail === ADMIN_EMAIL;
+};

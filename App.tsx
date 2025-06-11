@@ -3,6 +3,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebase';
 import { Schedule, ViewMode, ModalMode, ActiveTooltipData } from './types';
 import AuthComponent from './components/AuthComponent';
+import AdminPanel from './components/AdminPanel';
 import FirstLoginSetup from './components/FirstLoginSetup';
 import CalendarHeader from './components/CalendarHeader';
 import CalendarView from './components/CalendarView';
@@ -43,6 +44,7 @@ const App: React.FC = () => {
   const [activeTooltip, setActiveTooltip] = useState<ActiveTooltipData | null>(null);
 
   const [selectedTeamFilter, setSelectedTeamFilter] = useState<string>(ALL_TEAMS_FILTER_VALUE);
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
 
   const appName = "신사옥 관리";
 
@@ -259,7 +261,7 @@ const App: React.FC = () => {
 
   // 로그인되지 않은 경우 인증 컴포넌트 표시
   if (!user) {
-    return <AuthComponent user={user} onAuthSuccess={() => {}} />;
+    return <AuthComponent user={user} userProfile={null} onAuthSuccess={() => {}} onAdminClick={() => setShowAdminPanel(true)} />;
   }
 
   // 사용자 프로필 로딩 중
@@ -300,7 +302,7 @@ const App: React.FC = () => {
   if (schedulesLoading) {
     return (
       <div className="min-h-screen flex flex-col p-4 bg-gradient-to-br from-slate-900 to-slate-700 text-white">
-        <AuthComponent user={user} onAuthSuccess={() => {}} />
+        <AuthComponent user={user} userProfile={userProfile} onAuthSuccess={() => {}} onAdminClick={() => setShowAdminPanel(true)} />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-400 mx-auto mb-4"></div>
@@ -315,7 +317,7 @@ const App: React.FC = () => {
   if (schedulesError) {
     return (
       <div className="min-h-screen flex flex-col p-4 bg-gradient-to-br from-slate-900 to-slate-700 text-white">
-        <AuthComponent user={user} onAuthSuccess={() => {}} />
+        <AuthComponent user={user} userProfile={userProfile} onAuthSuccess={() => {}} onAdminClick={() => setShowAdminPanel(true)} />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center text-red-400">
             <p className="text-xl mb-2">오류가 발생했습니다</p>
@@ -328,7 +330,7 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col p-4 bg-gradient-to-br from-slate-900 to-slate-700 text-white">
-      <AuthComponent user={{ ...user, displayName: userProfile?.displayName }} onAuthSuccess={() => {}} />
+      <AuthComponent user={user} userProfile={userProfile} onAuthSuccess={() => {}} onAdminClick={() => setShowAdminPanel(true)} />
       
       <header className="mb-6 text-center">
         <h1 className="text-4xl font-bold text-sky-300">{appName}</h1>
@@ -412,6 +414,13 @@ const App: React.FC = () => {
       {activeTooltip && (
         <ScheduleTooltip
           tooltipData={activeTooltip}
+        />
+      )}
+
+      {showAdminPanel && (
+        <AdminPanel
+          user={user}
+          onClose={() => setShowAdminPanel(false)}
         />
       )}
     </div>

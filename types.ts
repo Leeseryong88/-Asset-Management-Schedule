@@ -19,6 +19,8 @@ export interface Schedule {
   endDate: string;   // YYYY-MM-DD
   color: string;
   files: UploadedFile[];
+  createdBy?: string; // 생성자 이메일
+  updatedBy?: string; // 수정자 이메일
 }
 
 export enum ViewMode {

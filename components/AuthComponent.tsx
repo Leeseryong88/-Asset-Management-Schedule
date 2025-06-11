@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { auth } from '../firebase';
+import { isAdmin } from '../constants';
 
 interface AuthComponentProps {
   user: any;
+  userProfile?: { displayName: string; team: string } | null;
   onAuthSuccess: () => void;
+  onAdminClick?: () => void;
 }
 
-const AuthComponent: React.FC<AuthComponentProps> = ({ user, onAuthSuccess }) => {
+const AuthComponent: React.FC<AuthComponentProps> = ({ user, userProfile, onAuthSuccess, onAdminClick }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -58,11 +61,19 @@ const AuthComponent: React.FC<AuthComponentProps> = ({ user, onAuthSuccess }) =>
         <div className="bg-slate-800 rounded-lg p-4 shadow-lg border border-slate-700">
           <div className="flex items-center space-x-4">
             <span className="text-sm text-slate-300">
-              {user.email}님 환영합니다
+              {userProfile?.displayName || user.displayName || user.email}님 환영합니다
             </span>
+            {isAdmin(user.email) && onAdminClick && (
+              <button
+                onClick={onAdminClick}
+                className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-sm rounded transition-colors"
+              >
+                🔧 관리자
+              </button>
+            )}
             <button
               onClick={handleSignOut}
-              className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-sm rounded transition-colors"
+              className="px-3 py-1 bg-slate-600 hover:bg-slate-700 text-white text-sm rounded transition-colors"
             >
               로그아웃
             </button>
