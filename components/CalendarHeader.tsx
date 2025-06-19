@@ -1,19 +1,21 @@
-
 import React from 'react';
 import { ViewMode } from '../types';
-import { ChevronLeftIcon, ChevronRightIcon, CalendarDaysIcon, ListBulletIcon, PlusIcon, FilterIcon } from './Icons'; // Added FilterIcon
+import { ChevronLeftIcon, ChevronRightIcon, CalendarDaysIcon, ListBulletIcon, PlusIcon, FilterIcon, WrenchScrewdriverIcon } from './Icons'; // Added WrenchScrewdriverIcon
 import { ALL_TEAMS_FILTER_VALUE } from '../constants';
+import CategoryFilter from './CategoryFilter'; // CategoryFilter를 import합니다.
 
 interface CalendarHeaderProps {
   currentMonth: Date;
-  setCurrentMonth: (date: Date) => void;
+  setCurrentMonth: React.Dispatch<React.SetStateAction<Date>>;
   currentView: ViewMode;
-  setCurrentView: (view: ViewMode) => void;
+  setCurrentView: (viewMode: ViewMode) => void;
   onAddSchedule: () => void;
   isDateSelectionActive: boolean;
   uniqueTeams: string[];
   selectedTeamFilter: string;
   onTeamFilterChange: (team: string) => void;
+  selectedCategories: string[];
+  onCategoryToggle: (category: string) => void;
 }
 
 const CalendarHeader: React.FC<CalendarHeaderProps> = ({
@@ -26,6 +28,8 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
   uniqueTeams,
   selectedTeamFilter,
   onTeamFilterChange,
+  selectedCategories,
+  onCategoryToggle,
 }) => {
   const nextMonth = () => {
     setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1));
@@ -56,9 +60,17 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
           <ChevronRightIcon className="w-6 h-6 text-sky-400" />
         </button>
       </div>
-      <div className="flex items-center space-x-1 sm:space-x-2">
+
+      <div className="flex items-center space-x-2">
+        <CategoryFilter
+          selectedCategories={selectedCategories}
+          onCategoryToggle={onCategoryToggle}
+        />
+
+        <div className="border-l border-slate-700 h-10 mx-1"></div>
+
         {currentView === ViewMode.Calendar && (
-          <div className="relative mr-1 sm:mr-2">
+          <div className="relative">
             <label htmlFor="team-filter" className="sr-only">팀 필터</label>
             <div className="flex items-center bg-slate-700 rounded-md">
                 <FilterIcon className="w-4 h-4 text-slate-400 absolute left-2 top-1/2 transform -translate-y-1/2 pointer-events-none" />

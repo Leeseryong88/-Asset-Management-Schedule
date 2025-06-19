@@ -1,3 +1,12 @@
+import {
+  WrenchScrewdriverIcon,
+  WrenchIcon,
+  DocumentTextIcon,
+  SparklesIcon,
+  UsersIcon,
+  PencilIcon,
+} from './components/Icons';
+
 export const PREDEFINED_COLORS: string[] = [
   '#4299E1', // blue-500
   '#48BB78', // green-500
@@ -16,6 +25,7 @@ export const DEFAULT_SCHEDULE_COLOR: string = PREDEFINED_COLORS[0];
 // 카테고리별 기본 색상 매핑
 export const CATEGORY_COLOR_MAP: { [key: string]: string } = {
   '공사': '#ED8936', // orange-500 (주황색 - 공사)
+  '세부 공사': '#F56565', // red-500 (빨간색 - 세부 공사)
   '인허가': '#4299E1', // blue-500 (파랑색 - 서류/공식적)
   '행사': '#ED64A6', // pink-500 (분홍색 - 화려한 행사)
   '회의': '#9F7AEA', // purple-500 (보라색 - 회의)
@@ -25,6 +35,7 @@ export const CATEGORY_COLOR_MAP: { [key: string]: string } = {
 // 색상별 카테고리 매핑 (역방향)
 export const COLOR_CATEGORY_MAP: { [key: string]: string } = {
   '#ED8936': '공사',
+  '#F56565': '세부 공사',
   '#4299E1': '인허가', 
   '#ED64A6': '행사',
   '#9F7AEA': '회의',
@@ -50,11 +61,12 @@ export const TEAM_OPTIONS: string[] = ['자산운영', '안전보건', '푸드�
 // export const DIRECT_INPUT_TEAM_OPTION: string = '직접입력'; // Removed
 export const ALL_TEAMS_FILTER_VALUE = 'ALL_TEAMS';
 
-export const CATEGORY_OPTIONS: string[] = ['공사', '인허가', '행사', '회의', '직접입력'];
+export const CATEGORY_OPTIONS: string[] = ['공사', '세부 공사', '인허가', '행사', '회의', '직접입력'];
 export const DEFAULT_CATEGORY: string = CATEGORY_OPTIONS[0];
 
 export const CATEGORY_EMOJI_MAP: { [key: string]: string } = {
   '공사': '🏗️',
+  '세부 공사': '🔧',
   '인허가': '📋',
   '행사': '🎉',
   '회의': '💼',
@@ -78,4 +90,13 @@ export const ADMIN_EMAIL = 'admin@gentlemonster.com';
 // 관리자 권한 체크 함수
 export const isAdmin = (userEmail: string | null | undefined): boolean => {
   return userEmail === ADMIN_EMAIL;
+};
+
+export const CATEGORY_ICON_MAP: { [key: string]: React.FC<{ className: string }> } = {
+  '공사': WrenchScrewdriverIcon,
+  '세부 공사': WrenchIcon,
+  '인허가': DocumentTextIcon,
+  '행사': SparklesIcon,
+  '회의': UsersIcon,
+  '직접입력': PencilIcon,
 };

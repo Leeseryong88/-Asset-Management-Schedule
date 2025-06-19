@@ -16,6 +16,7 @@ import { useUserProfile } from './hooks/useUserProfile';
 import { getCurrentDateISO, getSchedulesForDate, createDateFromISO, formatDateToDisplay } from './utils/dateUtils';
 import { ALL_TEAMS_FILTER_VALUE } from './constants';
 import { Analytics } from '@vercel/analytics/react';
+import { CATEGORY_OPTIONS } from './constants';
 
 type DateSelectionPhase = 'idle' | 'selectingEndDate';
 type NewScheduleDateParam = string | { startDate: string; endDate: string };
@@ -45,6 +46,7 @@ const App: React.FC = () => {
   const [activeTooltip, setActiveTooltip] = useState<ActiveTooltipData | null>(null);
 
   const [selectedTeamFilter, setSelectedTeamFilter] = useState<string>(ALL_TEAMS_FILTER_VALUE);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(CATEGORY_OPTIONS);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
 
   const appName = "신사옥 관리";
@@ -239,12 +241,37 @@ const App: React.FC = () => {
     hideScheduleTooltip();
   };
 
-  const filteredSchedulesForCalendar = useMemo(() => {
-    if (selectedTeamFilter === ALL_TEAMS_FILTER_VALUE) {
-      return schedules;
+  const handleCategoryToggle = (categoryToToggle: string) => {
+    if (categoryToToggle === 'all') {
+      setSelectedCategories(prev =>
+        prev.length === CATEGORY_OPTIONS.length ? [] : CATEGORY_OPTIONS
+      );
+    } else {
+      setSelectedCategories(prev =>
+        prev.includes(categoryToToggle)
+          ? prev.filter(c => c !== categoryToToggle)
+          : [...prev, categoryToToggle]
+      );
     }
-    return schedules.filter(s => s.team === selectedTeamFilter);
-  }, [schedules, selectedTeamFilter]);
+    closeDayPopover();
+    hideScheduleTooltip();
+  };
+
+  const filteredSchedulesForCalendar = useMemo(() => {
+    let filtered = schedules;
+    
+    // 팀 필터 적용
+    if (selectedTeamFilter !== ALL_TEAMS_FILTER_VALUE) {
+      filtered = filtered.filter(s => s.team === selectedTeamFilter);
+    }
+    
+    // 카테고리 필터 적용
+    if (selectedCategories.length < CATEGORY_OPTIONS.length) {
+      filtered = filtered.filter(s => selectedCategories.includes(s.category));
+    }
+    
+    return filtered;
+  }, [schedules, selectedTeamFilter, selectedCategories]);
 
   // 인증 로딩 중
   if (authLoading) {
@@ -335,56 +362,64 @@ const App: React.FC = () => {
         <h1 className="text-4xl font-bold text-sky-300">{appName}</h1>
       </header>
 
-      <CalendarHeader
-        currentMonth={currentMonth}
-        setCurrentMonth={setCurrentMonth}
-        currentView={currentView}
-        setCurrentView={(newView) => { 
-          setCurrentView(newView); 
-          closeDayPopover(); 
-          hideScheduleTooltip(); 
-        }}
-        onAddSchedule={() => { 
-          handleAddScheduleClick(); 
-          closeDayPopover(); 
-          hideScheduleTooltip(); 
-        }}
-        isDateSelectionActive={dateSelectionPhase !== 'idle'}
-        uniqueTeams={uniqueTeamsForFilter}
-        selectedTeamFilter={selectedTeamFilter}
-        onTeamFilterChange={handleTeamFilterChange}
-      />
-
-      {dateSelectionPrompt && (
-        <div className="my-3 p-3 bg-sky-700 text-white rounded-md text-center text-sm shadow-lg">
-          {dateSelectionPrompt.split("|")[0]} | {dateSelectionPrompt.split("|")[1].split("(")[0]}
-          (선택 취소: Esc 또는 <button onClick={cancelDateSelection} className="underline hover:text-sky-200">여기 클릭</button>)
-        </div>
-      )}
-
-      <main className="flex-1">
-        {currentView === ViewMode.Calendar ? (
-          <CalendarView
-            schedules={filteredSchedulesForCalendar}
+      <div className="flex-1 flex gap-4 overflow-hidden">
+        <div className="flex-1 flex flex-col min-w-0">
+          <CalendarHeader
             currentMonth={currentMonth}
-            onScheduleClick={(schedule) => openModal(ModalMode.View, schedule)}
-            onDateClick={handleDateClickFromCalendar}
-            dateSelectionPhase={dateSelectionPhase}
-            onShowDayPopover={showDayPopoverHandler}
-            onScheduleMouseEnter={handleScheduleMouseEnter}
-            onScheduleMouseLeave={hideScheduleTooltip}
-            onScheduleMouseMove={handleScheduleMouseMove}
+            setCurrentMonth={setCurrentMonth}
+            currentView={currentView}
+            setCurrentView={(newView) => { 
+              setCurrentView(newView); 
+              closeDayPopover(); 
+              hideScheduleTooltip(); 
+            }}
+            onAddSchedule={() => { 
+              handleAddScheduleClick(); 
+              closeDayPopover(); 
+              hideScheduleTooltip(); 
+            }}
+            isDateSelectionActive={dateSelectionPhase !== 'idle'}
+            uniqueTeams={uniqueTeamsForFilter}
+            selectedTeamFilter={selectedTeamFilter}
+            onTeamFilterChange={handleTeamFilterChange}
+            selectedCategories={selectedCategories}
+            onCategoryToggle={handleCategoryToggle}
           />
-        ) : (
-          <CardListView
-            schedules={filteredSchedulesForCalendar}
-            currentUserEmail={user?.email}
-            onScheduleClick={(schedule) => openModal(ModalMode.View, schedule)}
-            onEditClick={(schedule) => openModal(ModalMode.Edit, schedule)}
-            onDeleteClick={handleDeleteSchedule}
-          />
-        )}
-      </main>
+
+          {dateSelectionPrompt && (
+            <div className="my-3 p-3 bg-sky-700 text-white rounded-md text-center text-sm shadow-lg">
+              {dateSelectionPrompt.split("|")[0]} | {dateSelectionPrompt.split("|")[1].split("(")[0]}
+              (선택 취소: Esc 또는 <button onClick={cancelDateSelection} className="underline hover:text-sky-200">여기 클릭</button>)
+            </div>
+          )}
+
+          <main className="flex-1 mt-4">
+            {currentView === ViewMode.Calendar ? (
+              <CalendarView
+                schedules={filteredSchedulesForCalendar}
+                currentMonth={currentMonth}
+                onScheduleClick={(schedule) => openModal(ModalMode.View, schedule)}
+                onDateClick={handleDateClickFromCalendar}
+                dateSelectionPhase={dateSelectionPhase}
+                onShowDayPopover={showDayPopoverHandler}
+                onScheduleMouseEnter={handleScheduleMouseEnter}
+                onScheduleMouseLeave={hideScheduleTooltip}
+                onScheduleMouseMove={handleScheduleMouseMove}
+                allSchedules={schedules}
+              />
+            ) : (
+              <CardListView
+                schedules={filteredSchedulesForCalendar}
+                currentUserEmail={user?.email}
+                onScheduleClick={(schedule) => openModal(ModalMode.View, schedule)}
+                onEditClick={(schedule) => openModal(ModalMode.Edit, schedule)}
+                onDeleteClick={handleDeleteSchedule}
+                allSchedules={schedules}
+              />
+            )}
+          </main>
+        </div>
+      </div>
 
       {modalMode && (
         <ScheduleModal
