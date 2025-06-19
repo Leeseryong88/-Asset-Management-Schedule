@@ -28,14 +28,20 @@ export enum ViewMode {
   CardList = 'CARD_LIST',
 }
 
-export enum ModalMode {
-  View = 'VIEW',
-  Edit = 'EDIT',
-  Create = 'CREATE',
-}
-
 export interface ActiveTooltipData {
   schedule: Schedule;
   x: number;
   y: number;
+}
+
+export interface DateSelectionTooltipData {
+  text: string;
+  x: number;
+  y: number;
+}
+
+export enum ModalMode {
+  Create = 'create',
+  Edit = 'edit',
+  View = 'view'
 }

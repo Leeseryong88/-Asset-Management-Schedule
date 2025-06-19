@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebase';
-import { Schedule, ViewMode, ModalMode, ActiveTooltipData } from './types';
+import { Schedule, ViewMode, ModalMode, ActiveTooltipData, DateSelectionTooltipData } from './types';
 import AuthComponent from './components/AuthComponent';
 import AdminPanel from './components/AdminPanel';
 import FirstLoginSetup from './components/FirstLoginSetup';
@@ -17,6 +17,8 @@ import { getCurrentDateISO, getSchedulesForDate, createDateFromISO, formatDateTo
 import { ALL_TEAMS_FILTER_VALUE } from './constants';
 import { Analytics } from '@vercel/analytics/react';
 import { CATEGORY_OPTIONS } from './constants';
+import CategoryFilter from './components/CategoryFilter';
+import DateSelectionTooltip from './components/DateSelectionTooltip';
 
 type DateSelectionPhase = 'idle' | 'selectingEndDate';
 type NewScheduleDateParam = string | { startDate: string; endDate: string };
@@ -40,7 +42,7 @@ const App: React.FC = () => {
 
   const [dateSelectionPhase, setDateSelectionPhase] = useState<DateSelectionPhase>('idle');
   const [pendingStartDate, setPendingStartDate] = useState<string | null>(null);
-  const [dateSelectionPrompt, setDateSelectionPrompt] = useState<string | null>(null);
+  const [dateSelectionTooltip, setDateSelectionTooltip] = useState<DateSelectionTooltipData | null>(null);
 
   const [dayPopover, setDayPopover] = useState<DayPopoverData | null>(null);
   const [activeTooltip, setActiveTooltip] = useState<ActiveTooltipData | null>(null);
@@ -73,8 +75,8 @@ const App: React.FC = () => {
   const cancelDateSelection = useCallback(() => {
     setDateSelectionPhase('idle');
     setPendingStartDate(null);
-    setDateSelectionPrompt(null);
-    closeDayPopover(); 
+    setDateSelectionTooltip(null);
+    closeDayPopover();
     hideScheduleTooltip();
   }, [closeDayPopover, hideScheduleTooltip]);
 
@@ -154,7 +156,6 @@ const App: React.FC = () => {
     if (dateSelectionPhase === 'idle') {
       setPendingStartDate(dateString);
       setDateSelectionPhase('selectingEndDate');
-      setDateSelectionPrompt(`시작일: ${formatDateToDisplay(dateString)} | 종료일을 클릭하세요. (선택 취소: Esc 또는 여기 클릭)`);
     } else if (dateSelectionPhase === 'selectingEndDate' && pendingStartDate) {
       const startDateObj = createDateFromISO(pendingStartDate);
       const endDateObj = createDateFromISO(dateString);
@@ -211,6 +212,16 @@ const App: React.FC = () => {
   const handleScheduleMouseMove = useCallback((event: React.MouseEvent) => {
     setActiveTooltip(prev => prev ? { ...prev, x: event.clientX, y: event.clientY } : null);
   }, []);
+
+  const handleCalendarMouseMove = useCallback((event: React.MouseEvent) => {
+    if (dateSelectionPhase === 'selectingEndDate' && pendingStartDate) {
+      setDateSelectionTooltip({
+        text: `시작일: ${formatDateToDisplay(pendingStartDate)} | 종료일을 클릭하세요.`,
+        x: event.clientX,
+        y: event.clientY,
+      });
+    }
+  }, [dateSelectionPhase, pendingStartDate]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -386,13 +397,6 @@ const App: React.FC = () => {
             onCategoryToggle={handleCategoryToggle}
           />
 
-          {dateSelectionPrompt && (
-            <div className="my-3 p-3 bg-sky-700 text-white rounded-md text-center text-sm shadow-lg">
-              {dateSelectionPrompt.split("|")[0]} | {dateSelectionPrompt.split("|")[1].split("(")[0]}
-              (선택 취소: Esc 또는 <button onClick={cancelDateSelection} className="underline hover:text-sky-200">여기 클릭</button>)
-            </div>
-          )}
-
           <main className="flex-1 mt-4">
             {currentView === ViewMode.Calendar ? (
               <CalendarView
@@ -405,6 +409,7 @@ const App: React.FC = () => {
                 onScheduleMouseEnter={handleScheduleMouseEnter}
                 onScheduleMouseLeave={hideScheduleTooltip}
                 onScheduleMouseMove={handleScheduleMouseMove}
+                onCalendarMouseMove={handleCalendarMouseMove}
                 allSchedules={schedules}
               />
             ) : (
@@ -446,6 +451,8 @@ const App: React.FC = () => {
           onScheduleMouseMove={handleScheduleMouseMove}
         />
       )}
+
+      <DateSelectionTooltip tooltipData={dateSelectionTooltip} />
 
       {activeTooltip && (
         <ScheduleTooltip

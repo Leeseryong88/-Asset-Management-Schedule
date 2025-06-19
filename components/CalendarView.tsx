@@ -16,6 +16,8 @@ interface CalendarViewProps {
   onScheduleMouseEnter: (schedule: Schedule, event: React.MouseEvent) => void;
   onScheduleMouseLeave: () => void;
   onScheduleMouseMove: (event: React.MouseEvent) => void;
+  onCalendarMouseMove: (event: React.MouseEvent) => void;
+  allSchedules: Schedule[];
 }
 
 interface ScheduleLayout {
@@ -38,7 +40,9 @@ const CalendarView: React.FC<CalendarViewProps> = ({
     onShowDayPopover,
     onScheduleMouseEnter,
     onScheduleMouseLeave,
-    onScheduleMouseMove
+    onScheduleMouseMove,
+    onCalendarMouseMove,
+    allSchedules
 }) => {
   const year = currentMonth.getFullYear();
   const month = currentMonth.getMonth();
@@ -193,12 +197,13 @@ const CalendarView: React.FC<CalendarViewProps> = ({
 
 
   return (
-    <div className="bg-slate-800 p-4 sm:p-6 rounded-lg shadow-2xl h-full flex flex-col">
-      <div className="grid grid-cols-7 gap-px border-b border-slate-700 flex-shrink-0">
-        {WEEK_DAYS_KO.map(day => (
-          <div key={day} className="py-3 text-center font-semibold text-sm text-sky-400 bg-slate-750 first:rounded-tl-lg last:rounded-tr-lg">
-            {day}
-          </div>
+    <div 
+      className={`bg-slate-800 rounded-lg shadow-2xl p-4 h-full flex flex-col ${dateSelectionPhase !== 'idle' ? 'cursor-crosshair' : ''}`}
+      onMouseMove={onCalendarMouseMove}
+    >
+      <div className="grid grid-cols-7 text-center text-xs sm:text-sm font-semibold text-slate-400 mb-2">
+        {['일', '월', '화', '수', '목', '금', '토'].map((day) => (
+          <div key={day} className="py-2">{day}</div>
         ))}
       </div>
       <div className={`grid gap-px border-l border-r border-b border-slate-700 rounded-b-lg overflow-hidden flex-1 ${weeks.length === 5 ? 'grid-rows-5' : 'grid-rows-6'}`}>
