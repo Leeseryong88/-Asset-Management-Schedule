@@ -14,9 +14,8 @@ import ScheduleTooltip from './components/ScheduleTooltip';
 import { useFirestoreSchedules } from './hooks/useFirestoreSchedules';
 import { useUserProfile } from './hooks/useUserProfile';
 import { getCurrentDateISO, getSchedulesForDate, createDateFromISO, formatDateToDisplay } from './utils/dateUtils';
-import { ALL_TEAMS_FILTER_VALUE } from './constants';
+import { ALL_TEAMS_FILTER_VALUE, CATEGORY_OPTIONS } from './constants';
 import { Analytics } from '@vercel/analytics/react';
-import { CATEGORY_OPTIONS } from './constants';
 import CategoryFilter from './components/CategoryFilter';
 import DateSelectionTooltip from './components/DateSelectionTooltip';
 
@@ -278,7 +277,14 @@ const App: React.FC = () => {
     
     // 카테고리 필터 적용
     if (selectedCategories.length < CATEGORY_OPTIONS.length) {
-      filtered = filtered.filter(s => selectedCategories.includes(s.category));
+      filtered = filtered.filter(s => {
+        // '직접입력' 필터가 선택된 경우, 기본 카테고리 옵션에 없는 모든 카테고리를 포함
+        if (selectedCategories.includes('직접입력') && !CATEGORY_OPTIONS.slice(0, -1).includes(s.category)) {
+          return true;
+        }
+        // 일반적인 카테고리 필터링
+        return selectedCategories.includes(s.category);
+      });
     }
     
     return filtered;
@@ -419,7 +425,6 @@ const App: React.FC = () => {
                 onScheduleClick={(schedule) => openModal(ModalMode.View, schedule)}
                 onEditClick={(schedule) => openModal(ModalMode.Edit, schedule)}
                 onDeleteClick={handleDeleteSchedule}
-                allSchedules={schedules}
               />
             )}
           </main>
