@@ -102,6 +102,8 @@ const App: React.FC = () => {
 
   const handleSaveSchedule = useCallback(async (scheduleData: Schedule) => {
     try {
+      console.log('스케줄 저장 요청:', scheduleData);
+      
       if (modalMode === ModalMode.Create) {
         await addSchedule({
           title: scheduleData.title,
@@ -114,6 +116,7 @@ const App: React.FC = () => {
           color: scheduleData.color,
           files: scheduleData.files
         });
+        alert('스케줄이 성공적으로 생성되었습니다.');
       } else if (modalMode === ModalMode.Edit && selectedSchedule) {
         await updateSchedule(selectedSchedule.id, {
           title: scheduleData.title,
@@ -126,21 +129,36 @@ const App: React.FC = () => {
           color: scheduleData.color,
           files: scheduleData.files
         });
+        alert('스케줄이 성공적으로 수정되었습니다.');
       }
       closeModal();
     } catch (error) {
       console.error('스케줄 저장 오류:', error);
-      alert('스케줄 저장 중 오류가 발생했습니다.');
+      
+      // 구체적인 오류 메시지 표시
+      if (error instanceof Error) {
+        alert(`오류가 발생했습니다: ${error.message}`);
+      } else {
+        alert('스케줄 저장 중 알 수 없는 오류가 발생했습니다. 다시 시도해주세요.');
+      }
     }
   }, [modalMode, selectedSchedule, addSchedule, updateSchedule, closeModal]);
 
   const handleDeleteSchedule = useCallback(async (scheduleId: string) => {
     try {
+      console.log('스케줄 삭제 요청:', scheduleId);
       await deleteSchedule(scheduleId);
+      alert('스케줄이 성공적으로 삭제되었습니다.');
       closeModal();
     } catch (error) {
       console.error('스케줄 삭제 오류:', error);
-      alert('스케줄 삭제 중 오류가 발생했습니다.');
+      
+      // 구체적인 오류 메시지 표시
+      if (error instanceof Error) {
+        alert(`삭제 중 오류가 발생했습니다: ${error.message}`);
+      } else {
+        alert('스케줄 삭제 중 알 수 없는 오류가 발생했습니다. 다시 시도해주세요.');
+      }
     }
   }, [deleteSchedule, closeModal]);
   

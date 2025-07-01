@@ -25,7 +25,7 @@ export const useFileUpload = () => {
       const snapshot = await uploadBytes(storageRef, file);
       const downloadURL = await getDownloadURL(snapshot.ref);
       
-      // 이미지 파일인 경우 미리보기를 위한 dataUrl 생성
+      // 이미지 파일인 경우 미리보기를 위한 dataUrl 생성 (로컬에서만 사용)
       let dataUrl: string | null = null;
       if (file.type.startsWith('image/')) {
         dataUrl = await new Promise((resolve) => {
@@ -40,15 +40,27 @@ export const useFileUpload = () => {
         name: file.name,
         type: file.type,
         size: file.size,
-        dataUrl,
+        dataUrl, // 로컬 미리보기용 (Firestore에는 저장되지 않음)
         downloadURL,
         storagePath: `schedules/${scheduleId}/${fileName}`
       };
       
+      console.log('파일 업로드 완료:', {
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        downloadURL,
+        hasDataUrl: !!dataUrl
+      });
+      
       return uploadedFile;
     } catch (error) {
-      console.error('파일 업로드 오류:', error);
-      throw new Error('파일 업로드 중 오류가 발생했습니다.');
+      console.error('파일 업로드 오류 상세:', error);
+      if (error instanceof Error) {
+        throw new Error(`파일 업로드 중 오류가 발생했습니다: ${error.message}`);
+      } else {
+        throw new Error('파일 업로드 중 알 수 없는 오류가 발생했습니다.');
+      }
     } finally {
       setUploading(false);
     }
